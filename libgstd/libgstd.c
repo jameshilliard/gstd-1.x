@@ -697,3 +697,12 @@ out:
 
   return ret;
 }
+
+GstdStatus
+gstd_pipeline_bus_wait_async (GstDManager * manager,
+    const char *pipeline_name, const char *message_name,
+    const long long timeout, gstdPipelineBusWaitCallback callback,
+    void *user_data)
+{
+
+}
