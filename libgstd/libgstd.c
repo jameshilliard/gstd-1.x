@@ -46,7 +46,8 @@
 #define PRINTF_ERROR -1
 
 static GType gstd_supported_ipc_to_ipc (SupportedIpcs code);
-static void gstd_manager_init (void **gst_group, int argc, char *argv[]);
+static void gstd_manager_init (GOptionGroup ** gst_group,
+    int argc, char *argv[]);
 static GstdStatus gstd_crud (GstDManager * manager, const char *operation,
     const char *pipeline_name);
 
@@ -75,14 +76,14 @@ gstd_supported_ipc_to_ipc (SupportedIpcs code)
 }
 
 static void
-gstd_manager_init (void **gst_group, int argc, char *argv[])
+gstd_manager_init (GOptionGroup ** gst_group, int argc, char *argv[])
 {
   gst_init (&argc, &argv);
   gstd_debug_init ();
 
   if (gst_group != NULL && *gst_group != NULL) {
     g_print ("OPTIONS INIT\n");
-    *(GOptionGroup **) gst_group = gst_init_get_option_group ();
+    *gst_group = gst_init_get_option_group ();
   } else {
     g_print ("SIMPLE INIT\n");
   }
@@ -115,7 +116,7 @@ gstd_crud (GstDManager * manager, const char *operation,
 
 GstdStatus
 gstd_manager_new (SupportedIpcs supported_ipcs[], guint num_ipcs,
-    GstDManager ** out, void **gst_group, int argc, char *argv[])
+    GstDManager ** out, GOptionGroup ** gst_group, int argc, char *argv[])
 {
   GstDManager *manager;
   GstdSession *session;
@@ -123,9 +124,11 @@ gstd_manager_new (SupportedIpcs supported_ipcs[], guint num_ipcs,
   GstdIpc **ipc_array;
 
   gstd_assert_and_ret_val (NULL != out, GSTD_NULL_ARGUMENT);
+
   manager = (GstDManager *) malloc (sizeof (GstDManager));
   session = gstd_session_new ("Session0");
 
+  // If there is ipcs, then initialize them
   if (NULL != supported_ipcs) {
     ipc_array = g_malloc (num_ipcs * sizeof (GstdIpc *));
     for (int i = 0; i < num_ipcs; i++) {
@@ -148,23 +151,17 @@ gstd_manager_new (SupportedIpcs supported_ipcs[], guint num_ipcs,
 }
 
 void
-gstd_manager_ipc_options (GstDManager * manager, void **ipc_group)
+gstd_manager_ipc_options (GstDManager * manager, GOptionGroup ** ipc_group)
 {
-  GOptionGroup **ipc_group_gen;
   gint i;
 
   gstd_assert_and_ret (NULL != manager);
   gstd_assert_and_ret (NULL != manager->ipc_array);
   gstd_assert_and_ret (NULL != ipc_group);
 
-  ipc_group_gen = g_malloc (sizeof (ipc_group));
-  g_return_if_fail (ipc_group);
-
   for (i = 0; i < manager->num_ipcs; i++) {
-    gstd_ipc_get_option_group (manager->ipc_array[i], &ipc_group_gen[i]);
+    gstd_ipc_get_option_group (manager->ipc_array[i], &ipc_group[i]);
   }
-
-  *(GOptionGroup **) ipc_group = *ipc_group_gen;
 }
 
 gboolean
@@ -204,7 +201,6 @@ gstd_manager_ipc_start (GstDManager * manager)
     }
   }
 
-  g_print ("STATUS %d\n", ret);
   return ret;
 }
 
@@ -229,9 +225,9 @@ gstd_manager_ipc_stop (GstDManager * manager)
 void
 gstd_manager_free (GstDManager * manager)
 {
-  gst_deinit ();
   gstd_assert_and_ret (NULL != manager);
   g_free (manager);
+  gst_deinit ();
 }
 
 GstdStatus
@@ -322,15 +318,24 @@ gstd_pipeline_list (GstDManager * manager, char **pipelines[], int *list_lenght)
 
   gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipelines, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != list_lenght, GSTD_NULL_ARGUMENT);
 
   message = g_strdup_printf ("list_pipelines");
 
-  gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
 
   ret =
       gstd_json_get_child_char_array (response, "nodes", "name", pipelines,
       list_lenght);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
 
+out:
   g_free (message);
   g_free (response);
   message = NULL;
@@ -647,13 +652,48 @@ gstd_pipeline_seek (GstDManager * manager, const char *pname,
 
   message = g_strdup_printf ("event_seek %s %f %d %d %d %lld %d %lld",
       pname, rate, format, flags, start_type, start, stop_type, stop);
-  g_print ("%s\n", message);
   ret = gstd_parser_parse_cmd (manager->session, message, &output);
 
   g_free (message);
   g_free (output);
   message = NULL;
   output = NULL;
+
+  return ret;
+}
+
+GstdStatus
+gstd_pipeline_list_elements (GstDManager * manager, const char *pipeline_name,
+    char **elements[], int *list_lenght)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *message = NULL;
+  gchar *response = NULL;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != elements, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != list_lenght, GSTD_NULL_ARGUMENT);
+
+  message = g_strdup_printf ("list_elements %s", pipeline_name);
+
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+  ret =
+      gstd_json_get_child_char_array (response, "nodes", "name", elements,
+      list_lenght);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+
+out:
+  g_free (message);
+  g_free (response);
+  message = NULL;
+  response = NULL;
 
   return ret;
 }
