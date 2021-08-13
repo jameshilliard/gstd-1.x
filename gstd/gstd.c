@@ -74,8 +74,8 @@ main (gint argc, gchar * argv[])
   gchar *pidfile = NULL;
   GError *error = NULL;
   GOptionContext *context;
-  GOptionGroup *gstreamer_group;
-  GOptionGroup *ipc_group;
+  GOptionGroup *gstreamer_group = NULL;
+  GOptionGroup *ipc_group = NULL;
   gint ret = EXIT_SUCCESS;
   gchar *current_filename = NULL;
 
@@ -219,7 +219,6 @@ main (gint argc, gchar * argv[])
   gstd_log_deinit ();
 
   g_free (optiongroup_array);
-  g_free (ipc_group);
 
   goto out;
 
