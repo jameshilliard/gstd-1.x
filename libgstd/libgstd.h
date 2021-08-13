@@ -525,7 +525,7 @@ gstd_pipeline_list_signals (GstDManager * manager, const char *pipeline_name,
  * @pipeline_name: Name associated with the pipeline
  * @element: Name associated with the element
  * @signal: Name associated with the signal
- * @timeout: Timeout for the signal
+ * @timeout: Time signal should be waited for, -1: infinity, 0: no time, n: micro seconds to wait
  * @response: pointer to output string memory representing a pipeline state value,
  * this memory should be freed by the user.
  *
@@ -535,7 +535,8 @@ gstd_pipeline_list_signals (GstDManager * manager, const char *pipeline_name,
  * timeout, bad pipeline name
  */
 GstdStatus
-gstd_pipeline_signal_connect (GstDManager * manager, const char *pipeline_name, const char* element, const char* signal, const int value, char **response);
+gstd_pipeline_signal_connect (GstDManager * manager, const char *pipeline_name,
+    const char *element, const char *signal, const int timeout, char **response);
 
 /**
  * gstd_pipeline_signal_disconnect:

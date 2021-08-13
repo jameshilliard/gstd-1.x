@@ -773,3 +773,42 @@ out:
 
   return ret;
 }
+
+GstdStatus
+gstd_pipeline_signal_connect (GstDManager * manager, const char *pipeline_name,
+    const char *element, const char *signal, const int timeout, char **response)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *message = NULL;
+  gchar *out = NULL;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != element, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != signal, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != response, GSTD_NULL_ARGUMENT);
+
+
+  message =
+      g_strdup_printf ("signal_timeout %s %s %s %d", pipeline_name, element,
+      signal, timeout);
+  ret = gstd_parser_parse_cmd (manager->session, message, &out);
+  if (ret != GSTD_LIB_OK) {
+    response = NULL;
+    goto out;
+  }
+
+  message =
+      g_strdup_printf ("signal_connect %s %s %s", pipeline_name, element,
+      signal);
+  ret = gstd_parser_parse_cmd (manager->session, message, response);
+
+out:
+  g_free (message);
+  g_free (out);
+  message = NULL;
+  out = NULL;
+
+  return ret;
+}
