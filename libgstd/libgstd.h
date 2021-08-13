@@ -425,7 +425,7 @@ GstdStatus gstd_pipeline_list_elements (GstDManager * manager, const char *pipel
  char **elements[], int* list_lenght);
 
 /**
- * gstdPipelineBusWaitCallback:
+ * GstdPipelineBusWaitCallback:
  * @manager: The manager returned by gstd_manager_new()
  * @pipeline_name: Name associated with the pipeline
  * @message_name: The type of message to receive
@@ -439,7 +439,7 @@ GstdStatus gstd_pipeline_list_elements (GstDManager * manager, const char *pipel
  * Returns: GstdStatus indicating success or some failure
  */
 typedef GstdStatus
-(*gstdPipelineBusWaitCallback) (GstDManager * manager,
+(*GstdPipelineBusWaitCallback) (GstDManager * manager,
     const char *pipeline_name, const char *message_name,
     const long long timeout, char *message, void *user_data);
 
@@ -462,7 +462,7 @@ typedef GstdStatus
 GstdStatus
 gstd_pipeline_bus_wait_async (GstDManager * manager,
     const char *pipeline_name, const char *message_name,
-    const long long timeout, gstdPipelineBusWaitCallback callback,
+    const long long timeout, GstdPipelineBusWaitCallback callback,
     void *user_data);
 
 /**
@@ -516,7 +516,8 @@ gstd_pipeline_get_state (GstDManager * manager, const char *pipeline_name,
  * bad pipeline name
  */
 GstdStatus
-gstd_pipeline_list_signals (GstDManager * manager, const char *pipeline_name, const char* element, char **signals[], int *list_lenght);
+gstd_pipeline_list_signals (GstDManager * manager, const char *pipeline_name, 
+    const char* element, char **signals[], int *list_lenght);
 
 /**
  * gstd_pipeline_signal_connect:

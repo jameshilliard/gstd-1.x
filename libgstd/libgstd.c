@@ -554,9 +554,6 @@ gstd_element_properties_list (GstDManager * manager, const char *pipeline_name,
   ret =
       gstd_json_get_child_char_array (response, "nodes", "name", properties,
       list_lenght);
-  if (ret != GSTD_LIB_OK) {
-    goto out;
-  }
 
 out:
   g_free (message);
@@ -698,11 +695,81 @@ out:
   return ret;
 }
 
-GstdStatus
-gstd_pipeline_bus_wait_async (GstDManager * manager,
-    const char *pipeline_name, const char *message_name,
-    const long long timeout, gstdPipelineBusWaitCallback callback,
-    void *user_data)
-{
+// GstdStatus
+// gstd_pipeline_bus_wait_async (GstDManager * manager,
+//     const char *pipeline_name, const char *message_name,
+//     const long long timeout, GstdPipelineBusWaitCallback callback,
+//     void *user_data)
+// {
 
+// }
+
+// GstdStatus
+// gstd_pipeline_bus_wait (GstDManager * manager,
+//     const char *pipeline_name, const char *message_name,
+//     const long long timeout, char **message)
+// {
+
+// }
+
+GstdStatus
+gstd_pipeline_get_state (GstDManager * manager, const char *pipeline_name,
+    char **out)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *message = NULL;
+  gchar *response = NULL;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != out, GSTD_NULL_ARGUMENT);
+
+  message = g_strdup_printf ("read /pipelines/%s/state", pipeline_name);
+
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+  ret = gstd_json_child_string (response, "value", out);
+
+out:
+  g_free (message);
+  g_free (response);
+  message = NULL;
+  response = NULL;
+
+  return ret;
+}
+
+GstdStatus
+gstd_pipeline_list_signals (GstDManager * manager, const char *pipeline_name,
+    const char *element, char **signals[], int *list_lenght)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *message = NULL;
+  gchar *response = NULL;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != element, GSTD_NULL_ARGUMENT);
+
+  message = g_strdup_printf ("list_signals %s %s", pipeline_name, element);
+
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+  ret =
+      gstd_json_get_child_char_array (response, "nodes", "name", signals,
+      list_lenght);
+
+out:
+  g_free (message);
+  g_free (response);
+  message = NULL;
+  response = NULL;
+
+  return ret;
 }
