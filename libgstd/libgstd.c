@@ -1,6 +1,6 @@
 /*
  * GStreamer Daemon - gst-launch on steroids
- * C client library abstracting gstd interprocess communication
+ * C manager library abstracting gstd interprocess communication
  *
  * Copyright (c) 2015-2021 RidgeRun, LLC (http://www.ridgerun.com)
  *
@@ -42,6 +42,7 @@
 #include "gstd_log.h"
 #include "libgstd_assert.h"
 #include "libgstd_json.h"
+#include "libgstd_thread.h"
 
 #define PRINTF_ERROR -1
 
@@ -50,12 +51,24 @@ static void gstd_manager_init (GOptionGroup ** gst_group,
     int argc, char *argv[]);
 static GstdStatus gstd_crud (GstDManager * manager, const char *operation,
     const char *pipeline_name);
+static void *gstd_bus_thread (void *user_data);
 
 struct _GstDManager
 {
   GstdSession *session;
   GstdIpc **ipc_array;
   guint num_ipcs;
+};
+
+typedef struct _GstdThreadData GstdThreadData;
+struct _GstdThreadData
+{
+  GstDManager *manager;
+  const char *pipeline_name;
+  const char *message;
+  GstdPipelineBusWaitCallback func;
+  void *user_data;
+  long long timeout;
 };
 
 static GType
@@ -695,14 +708,84 @@ out:
   return ret;
 }
 
-// GstdStatus
-// gstd_pipeline_bus_wait_async (GstDManager * manager,
-//     const char *pipeline_name, const char *message_name,
-//     const long long timeout, GstdPipelineBusWaitCallback callback,
-//     void *user_data)
-// {
+static void *
+gstd_bus_thread (void *user_data)
+{
+  GstdThreadData *data = (GstdThreadData *) user_data;
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *message = NULL;
+  gchar *response = NULL;
+  const char *pipeline_name = data->pipeline_name;
+  const char *message_name = data->message;
+  long long timeout = data->timeout;
+  GstDManager *manager = data->manager;
 
-// }
+  message = g_strdup_printf ("bus_read %s", pipeline_name);
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+
+  data->func (manager, pipeline_name, message_name, timeout, response,
+      data->user_data);
+
+out:
+  g_free (message);
+  g_free (response);
+  message = NULL;
+  response = NULL;
+
+  return NULL;
+}
+
+GstdStatus
+gstd_pipeline_bus_wait_async (GstDManager * manager,
+    const char *pipeline_name, const char *message_name,
+    const long long timeout, GstdPipelineBusWaitCallback callback,
+    void *user_data)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  GstdThread thread;
+  GstdThreadData *data;
+  gchar *message = NULL;
+  gchar *response = NULL;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != message_name, GSTD_NULL_ARGUMENT);
+
+  message = g_strdup_printf ("bus_filter %s %s", pipeline_name, message_name);
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+  response = NULL;
+
+  message = g_strdup_printf ("bus_timeout %s %lld", pipeline_name, timeout);
+  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+
+  data = malloc (sizeof (GstdThreadData));
+  data->manager = manager;
+  data->pipeline_name = pipeline_name;
+  data->message = message_name;
+  data->timeout = timeout;
+  data->func = callback;
+  data->user_data = user_data;
+
+  ret = gstd_thread_new (&thread, gstd_bus_thread, data);
+
+out:
+  g_free (message);
+  g_free (response);
+  message = NULL;
+  response = NULL;
+
+  return ret;
+}
 
 // GstdStatus
 // gstd_pipeline_bus_wait (GstDManager * manager,

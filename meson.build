@@ -52,7 +52,7 @@ endif
 
 ## Dependencies
 # Define gst Daemon dependencies
-gstd_deps = [gst_base_dep, gio_unix_dep, json_glib_dep, libd_dep, jansson_dep, libsoup_dep]
+gstd_deps = [gst_base_dep, gio_unix_dep, json_glib_dep, libd_dep, jansson_dep, libsoup_dep, thread_dep]
 # Define gst client library dependencies
 libgstc_deps = [gst_base_dep, json_glib_dep, jansson_dep, thread_dep]
 # Define gst core library dependencies
