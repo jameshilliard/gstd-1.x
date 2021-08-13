@@ -789,7 +789,6 @@ gstd_pipeline_signal_connect (GstDManager * manager, const char *pipeline_name,
   gstd_assert_and_ret_val (NULL != signal, GSTD_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != response, GSTD_NULL_ARGUMENT);
 
-
   message =
       g_strdup_printf ("signal_timeout %s %s %s %d", pipeline_name, element,
       signal, timeout);
@@ -805,6 +804,33 @@ gstd_pipeline_signal_connect (GstDManager * manager, const char *pipeline_name,
   ret = gstd_parser_parse_cmd (manager->session, message, response);
 
 out:
+  g_free (message);
+  g_free (out);
+  message = NULL;
+  out = NULL;
+
+  return ret;
+}
+
+GstdStatus
+gstd_pipeline_signal_disconnect (GstDManager * manager,
+    const char *pipeline_name, const char *element, const char *signal)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *message = NULL;
+  gchar *out = NULL;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != element, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != signal, GSTD_NULL_ARGUMENT);
+
+  message =
+      g_strdup_printf ("signal_disconnect %s %s %s", pipeline_name, element,
+      signal);
+  ret = gstd_parser_parse_cmd (manager->session, message, &out);
+
   g_free (message);
   g_free (out);
   message = NULL;
