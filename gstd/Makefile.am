@@ -1,9 +1,21 @@
 # Core library if user wants to use as code base for its own application
 lib_LTLIBRARIES = libgstd-core.la
 
+libgstd_core_la_CFLAGS = $(GST_CFLAGS)					\
+			 $(GIO_CFLAGS)					\
+			 $(GIO_UNIX_CFLAGS)				\
+			 $(LIBSOUP_CFLAGS)				\
+			 $(GJSON_CFLAGS)				\
+			 -DGSTD_LOG_STATE_DIR=\"$(GSTD_LOG_STATE_DIR)\"	\
+			 -DGSTD_RUN_STATE_DIR=\"$(GSTD_RUN_STATE_DIR)\" \
+			 $(JANSSON_CFLAGS) -pthread \
+			 -I$(top_srcdir)/libgstd
+
+libgstd_core_la_LDFLAGS = $(GST_LIBS) $(GIO_LIBS) $(GJSON_LIBS) $(LIBSOUP_LIBS) $(JANSSON_LIBS) -pthread
+
 libgstd_core_la_SOURCES = gstd_session.c		\
 			  gstd_object.c			\
-	                  gstd_pipeline.c 		\
+	          gstd_pipeline.c 		\
 			  gstd_element.c		\
 			  gstd_list.c			\
 			  gstd_ipc.c			\
@@ -53,17 +65,11 @@ libgstd_core_la_SOURCES = gstd_session.c		\
 			  gstd_signal_reader.c		\
 			  gstd_socket.c			\
 			  gstd_unix.c			\
-			  gstd_signal_list.c
-
-libgstd_core_la_CFLAGS = $(GST_CFLAGS)					\
-			 $(GIO_CFLAGS)					\
-			 $(GIO_UNIX_CFLAGS)				\
-			 $(LIBSOUP_CFLAGS)				\
-			 $(GJSON_CFLAGS)				\
-			 -DGSTD_LOG_STATE_DIR=\"$(GSTD_LOG_STATE_DIR)\"	\
-			 -DGSTD_RUN_STATE_DIR=\"$(GSTD_RUN_STATE_DIR)\"
-
-libgstd_core_la_LDFLAGS = $(GST_LIBS) $(GIO_LIBS) $(GJSON_LIBS) $(LIBSOUP_LIBS)
+			  gstd_signal_list.c	\
+			  ../libgstd/libgstd_assert.c	\
+			  ../libgstd/libgstd.c			\
+			  ../libgstd/libgstd_json.c		\
+			  ../libgstd/libgstd_thread.c
 
 # Standalone application that uses libgstd-core
 bin_PROGRAMS = gstd
@@ -71,6 +77,7 @@ bin_PROGRAMS = gstd
 gstd_SOURCES =  gstd.c gstd_daemon.c
 
 gstd_CFLAGS = $(GST_CFLAGS)					\
+		  -I$(top_srcdir)/libgstd/			\
 	      $(GIO_CFLAGS)					\
 	      $(LIBSOUP_CFLAGS)					\
 	      $(GIO_UNIX_CFLAGS)				\
@@ -87,7 +94,7 @@ gstd_LDFLAGS = $(GST_LIBS)					\
 	       $(LIBSOUP_LIBS)					\
 	       -Wl,-rpath -Wl,$(libdir)
 
-gstd_LDADD = libgstd-core.la
+gstd_LDADD = libgstd-core.la $(top_srcdir)/libgstd/libgstd.h
 
 gstdincludedir = $(includedir)/gstd
 gstdinclude_HEADERS = \

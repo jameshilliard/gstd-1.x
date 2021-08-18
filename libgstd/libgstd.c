@@ -1,6 +1,6 @@
 /*
  * GStreamer Daemon - gst-launch on steroids
- * C manager library abstracting gstd interprocess communication
+ * C library abstracting gstd
  *
  * Copyright (c) 2015-2021 RidgeRun, LLC (http://www.ridgerun.com)
  *
@@ -30,7 +30,6 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #define _GNU_SOURCE
-#include <glib-unix.h>
 #include <stdarg.h>
 #include <stdio.h>
 

@@ -43,7 +43,7 @@ typedef struct _GstDManager GstDManager;
  * Supported_IPCs:
  * IPC options for libGstD
  */
-typedef enum _SupportedIpcs SupportedIpcs; // Used to avoid importing gstd_ipc.h in this file
+typedef enum _SupportedIpcs SupportedIpcs; /* Used to avoid importing gstd_ipc.h in this file */
 
 enum _SupportedIpcs 
 {
