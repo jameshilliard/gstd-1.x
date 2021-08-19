@@ -24,6 +24,7 @@
 #include "gstd_event_handler.h"
 #include "gstd_parser.h"
 #include "gstd_session.h"
+#include "gstd_element.h"
 
 #define check_argument(arg, code) \
     if (NULL == (arg)) return (code)
@@ -229,7 +230,11 @@ gstd_parser_parse_cmd (GstdSession * session, const gchar * cmd,
   return ret;
 }
 
-
+static void
+new_sample (GstElement * source)
+{
+  g_print ("Hi\n");
+}
 
 static GstdReturnCode
 gstd_parser_create (GstdSession * session, GstdObject * obj, gchar * args,
@@ -240,6 +245,12 @@ gstd_parser_create (GstdSession * session, GstdObject * obj, gchar * args,
   gchar *description;
   GstdObject *new;
   GstdReturnCode ret;
+
+  GstdList *listElements = NULL;
+  gchar *listElementsResponse = NULL;
+  GstdElement *appSinkGstD = NULL;
+  GstElement *appSink = NULL;
+  gchar *appSinkResponse = NULL;
 
   g_return_val_if_fail (GSTD_IS_SESSION (session), GSTD_NULL_ARGUMENT);
   g_return_val_if_fail (G_IS_OBJECT (obj), GSTD_NULL_ARGUMENT);
@@ -267,6 +278,15 @@ gstd_parser_create (GstdSession * session, GstdObject * obj, gchar * args,
     goto out;
 
   gstd_object_read (obj, name, &new);
+
+  g_object_get (new, "elements", &listElements, NULL);
+  // gstd_object_to_string (listElements, &listElementsResponse);
+
+  appSinkGstD = (GstdElement *) gstd_list_find_child (listElements, "fs");
+  g_object_get (appSinkGstD, "gstelement", &appSink, NULL);
+  g_signal_connect (appSink, "new-sample", G_CALLBACK (new_sample), NULL);
+  // gstd_object_to_string (appSinkGstD, &appSinkResponse);
+  // g_print ("TEST: %s\n\n", appSinkResponse);
 
   if (NULL != new) {
     gstd_object_to_string (new, response);

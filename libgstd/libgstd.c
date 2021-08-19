@@ -995,3 +995,25 @@ gstd_pipeline_signal_disconnect (GstDManager * manager,
 
   return ret;
 }
+
+GstdStatus
+gstd_signal_sink_callback (GstDManager * manager,
+    const char *pipeline_name, const char *sink_name,
+    GstdSinkCallback callback, void *user_data)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  GstdObject *node;
+  const gchar *uri = "/pipelines";
+
+  ret = gstd_get_by_uri (manager->session, uri, &node);
+  if (ret || NULL == node) {
+    return ret;
+  }
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != sink_name, GSTD_NULL_ARGUMENT);
+
+  return ret;
+}

@@ -553,6 +553,39 @@ gstd_pipeline_signal_connect (GstDManager * manager, const char *pipeline_name,
 GstdStatus
 gstd_pipeline_signal_disconnect (GstDManager * manager, const char *pipeline_name, const char* element, const char* signal);
 
+/**
+ * GstdSinkCallback:
+ * @source: Element which produces the event
+ * @user_data: (allow none): A placeholder for custom data
+ * 
+ * The callback signature of the function to be registered in
+ * gstd_signal_sink_callback()
+ *
+ * Returns: GstdStatus indicating success or some failure
+ */
+typedef GstdStatus
+(*GstdSinkCallback) (GstElement *source, void *user_data);
+
+
+/**
+ * gstd_pipeline_bus_wait_async:
+ * @manager: The manager returned by gstd_manager_new()
+ * @pipeline_name: Name associated with the pipeline
+ * @sink_name: Name associated with to the sink element
+ * @callback: The function to be called when the sink element
+ * receives buffers.
+ * @user_data: (allow none): A placeholder for custom data
+ * 
+ * Register a callback function to be called when a buffer
+ * is received on the sink element associated.
+ *
+ * Returns: GstdStatus indicating success, thread error or timeout.
+ */
+GstdStatus
+gstd_signal_sink_callback (GstDManager * manager,
+    const char *pipeline_name, const char *sink_name,
+    GstdSinkCallback callback, void *user_data);
+
 #ifdef __cplusplus
 }
 #endif
