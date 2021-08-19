@@ -70,6 +70,16 @@ struct _GstdThreadData
   long long timeout;
 };
 
+typedef struct _GstdSyncBusData GstdSyncBusData;
+struct _GstdSyncBusData
+{
+  GstdCond cond;
+  GstdMutex mutex;
+  int waiting;
+  char *message;
+  GstdStatus ret;
+};
+
 static GType
 gstd_supported_ipc_to_ipc (SupportedIpcs code)
 {
@@ -786,13 +796,78 @@ out:
   return ret;
 }
 
-// GstdStatus
-// gstd_pipeline_bus_wait (GstDManager * manager,
-//     const char *pipeline_name, const char *message_name,
-//     const long long timeout, char **message)
-// {
+/*
+ * The Wunused-parameter warning is ignored for this function since it should
+ * carry all of this information for the callback even when the parameters
+ * aren't directly used
+ */
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+static GstdStatus
+gstd_pipeline_bus_wait_callback (GstDManager * manager,
+    const char *pipeline_name, const char *message_name,
+    const long long timeout, char *message, void *user_data)
+{
+  GstdSyncBusData *data = (GstdSyncBusData *) user_data;
+  GstdStatus ret = GSTD_LIB_OK;
+  const int msglen = strlen (message) + 1;
+  const char *response_tag = "response";
+  int is_null;
 
-// }
+  gstd_mutex_lock (&(data->mutex));
+  data->waiting = 0;
+  data->message = (char *) malloc (msglen);
+  memcpy (data->message, message, msglen);
+
+  /* If a valid string was received, a valid bus message was received.
+     Otherwise, a timeout occurred */
+  ret = gstd_json_is_null (message, response_tag, &is_null);
+  if (GSTD_LIB_OK == ret) {
+    data->ret = is_null ? GSTD_LIB_BUS_TIMEOUT : ret;
+  } else {
+    data->ret = ret;
+  }
+
+  gstd_cond_signal (&(data->cond));
+  gstd_mutex_unlock (&(data->mutex));
+
+  return GSTD_LIB_OK;
+}
+
+#pragma GCC diagnostic pop
+GstdStatus
+gstd_pipeline_bus_wait (GstDManager * manager,
+    const char *pipeline_name, const char *message_name,
+    const long long timeout, char **message)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  GstdSyncBusData data;
+
+  gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != message_name, GSTD_NULL_ARGUMENT);
+
+  gstd_cond_init (&(data.cond));
+  gstd_mutex_init (&(data.mutex));
+  data.waiting = 1;
+
+  ret = gstd_pipeline_bus_wait_async (manager, pipeline_name, message_name,
+      timeout, gstd_pipeline_bus_wait_callback, &data);
+  if (GSTD_LIB_OK != ret) {
+    return ret;
+  }
+
+  gstd_mutex_lock (&(data.mutex));
+  while (1 == data.waiting) {
+    gstd_cond_wait (&(data.cond), &(data.mutex));
+  }
+  gstd_mutex_unlock (&(data.mutex));
+
+  /* Output the message back to the user */
+  *message = data.message;
+
+  return data.ret;
+}
 
 GstdStatus
 gstd_pipeline_get_state (GstDManager * manager, const char *pipeline_name,
