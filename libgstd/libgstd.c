@@ -42,6 +42,8 @@
 #include "libgstd_assert.h"
 #include "libgstd_json.h"
 #include "libgstd_thread.h"
+#include "gstd_element.h"
+
 
 #define PRINTF_ERROR -1
 
@@ -1003,17 +1005,64 @@ gstd_signal_sink_callback (GstDManager * manager,
 {
   GstdStatus ret = GSTD_LIB_OK;
   GstdObject *node;
-  const gchar *uri = "/pipelines";
+  GstdObject *pipe;
+  GstdList *listElements = NULL;
+  GstdElement *appSinkGstD = NULL;
+  GstElement *appSink = NULL;
 
-  ret = gstd_get_by_uri (manager->session, uri, &node);
-  if (ret || NULL == node) {
-    return ret;
-  }
+  const gchar *uri = "/pipelines";
 
   gstd_assert_and_ret_val (NULL != manager, GSTD_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != manager->session, GSTD_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != sink_name, GSTD_NULL_ARGUMENT);
 
+  ret = gstd_get_by_uri (manager->session, uri, &node);
+  if (ret || NULL == node) {
+    goto out;
+  }
+
+  gstd_object_read (node, pipeline_name, &pipe);
+  if (NULL == pipe) {
+    ret = GSTD_LIB_NOT_FOUND;
+    goto out;
+  }
+
+  ret =
+      gstd_element_set (manager, pipeline_name, sink_name, "emit-signals", "%s",
+      "true");
+  if (ret != GSTD_LIB_OK) {
+    goto out;
+  }
+
+  g_object_get (pipe, "elements", &listElements, NULL);
+  if (NULL == listElements) {
+    ret = GSTD_LIB_NOT_FOUND;
+    goto out;
+  }
+
+  appSinkGstD = (GstdElement *) gstd_list_find_child (listElements, sink_name);
+  if (NULL == appSinkGstD) {
+    ret = GSTD_LIB_NOT_FOUND;
+    goto out;
+  }
+
+  g_object_get (appSinkGstD, "gstelement", &appSink, NULL);
+  if (NULL == appSink) {
+    ret = GSTD_LIB_NOT_FOUND;
+    goto out;
+  }
+
+  if (0 >= g_signal_connect (appSink, "new-sample", G_CALLBACK (callback),
+          user_data)) {
+    ret = GSTD_LIB_NOT_FOUND;
+  }
+
+out:
+  g_object_unref (node);
+  g_object_unref (pipe);
+  g_object_unref (listElements);
+  g_object_unref (appSinkGstD);
+  g_object_unref (appSink);
   return ret;
 }
