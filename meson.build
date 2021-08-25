@@ -62,6 +62,7 @@ gst_client_deps = [readline_dep, json_glib_dep, gio_unix_dep]
 # Define test dependencies
 test_libgstc_deps=[gst_base_dep, json_glib_dep, jansson_dep, thread_dep, gst_check_dep]
 test_gstd_deps=[gst_base_dep, gio_unix_dep, json_glib_dep, libd_dep, jansson_dep, gst_check_dep]
+test_libgstd_deps=[gst_base_dep, gio_unix_dep, json_glib_dep, libd_dep, jansson_dep, thread_dep, libsoup_dep, gst_check_dep]
 
 # Define header directories
 lib_gstc_inc_dir = include_directories('libgstc/c')

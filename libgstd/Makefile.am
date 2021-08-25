@@ -21,8 +21,6 @@ libgstd_@GSTD_API_VERSION@_la_CFLAGS =  $(GST_CFLAGS)					\
 
 libgstd_@GSTD_API_VERSION@_la_LDFLAGS = $(GST_LIBS) $(GIO_LIBS) $(GJSON_LIBS) $(LIBSOUP_LIBS) $(JANSSON_LIBS) -pthread
 
-LDADD = $(top_srcdir)/gstd/libgstd-core.la
-
 noinst_HEADERS = \
 	libgstd_assert.h	\
 	libgstd_json.h		\
