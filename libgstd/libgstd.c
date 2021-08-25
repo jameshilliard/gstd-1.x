@@ -1028,13 +1028,6 @@ gstd_signal_sink_callback (GstDManager * manager,
     goto out;
   }
 
-  ret =
-      gstd_element_set (manager, pipeline_name, sink_name, "emit-signals", "%s",
-      "true");
-  if (ret != GSTD_LIB_OK) {
-    goto out;
-  }
-
   g_object_get (pipe, "elements", &listElements, NULL);
   if (NULL == listElements) {
     ret = GSTD_LIB_NOT_FOUND;
