@@ -18,15 +18,13 @@
  */
 
 #include <gst/check/gstcheck.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+
+#include "gstd_parser.h"
 #include "libgstd.h"
 #include "libgstd_assert.h"
-#include "libgstd_json.h"
 
+/* Test Fixture */
 static GstDManager *manager;
 
 static void
@@ -41,71 +39,59 @@ teardown (void)
   gstd_manager_free (manager);
 }
 
-
-GST_START_TEST (test_pipeline_create_successful)
+GST_START_TEST (test_manager_debug_successful)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  const char *threshold = "*:2";
+  const int color_enable = 0;
+  const int reset = 1;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
-  fail_if (GSTD_LIB_OK != ret);
+  ret = gstd_manager_debug (manager, threshold, color_enable, reset);
+  assert_equals_int (GSTD_LIB_OK, ret);
 }
 
 GST_END_TEST;
 
-
-GST_START_TEST (test_pipeline_create_null_name)
+GST_START_TEST (test_manager_debug_null_client)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = NULL;
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  const char *threshold = "*:2";
+  const int color_enable = 0;
+  const int reset = 1;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_manager_debug (NULL, threshold, color_enable, reset);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_desc)
+GST_START_TEST (test_manager_debug_null_threshold)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = NULL;
+  const char *threshold = NULL;
+  const int color_enable = 0;
+  const int reset = 1;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
-  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
-}
-
-GST_END_TEST;
-
-GST_START_TEST (test_pipeline_create_null_manager)
-{
-  GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
-
-  ret = gstd_pipeline_create (NULL, pipeline_name, pipeline_desc);
+  ret = gstd_manager_debug (NULL, threshold, color_enable, reset);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
 static Suite *
-gstd_pipeline_create_suite (void)
+gstd_manager_debug_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_create");
+  Suite *suite = suite_create ("gstd_manager_debug");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_create_successful);
-  tcase_add_test (tc, test_pipeline_create_null_name);
-  tcase_add_test (tc, test_pipeline_create_null_desc);
-  tcase_add_test (tc, test_pipeline_create_null_manager);
+  tcase_add_test (tc, test_manager_debug_successful);
+  tcase_add_test (tc, test_manager_debug_null_client);
+  tcase_add_test (tc, test_manager_debug_null_threshold);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_create);
+GST_CHECK_MAIN (gstd_manager_debug);

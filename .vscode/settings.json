@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "libgstd.h": "c",
+        "gstd_parser.h": "c",
+        "gstd_http.h": "c"
+    }
+}

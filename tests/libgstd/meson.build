@@ -1,5 +1,7 @@
 # Tests and condition when to skip the test
 gstd_tests = [
+  ['test_libgstd_manager.c'],
+  ['test_libgstd_debug.c'],
   ['test_libgstd_pipeline_create.c']
 ]
 # Add C Definitions for tests
@@ -33,9 +35,9 @@ foreach t : gstd_tests
     exe = executable(test_name, fname,
         c_args : gst_c_args + test_defines,
         cpp_args : gst_c_args + test_defines,
-        include_directories : [configinc, libgstd_inc_dir],
+        include_directories : [configinc, libgstd_inc_dir, gstd_inc_dir],
         link_with : link_with_libs,
-        dependencies : [test_libgstd_deps, lib_gstd_manager_dep],
+        dependencies : [test_libgstd_deps, lib_gstd_manager_dep, lib_gstd_dep],
     )
 
     # Define enviroment variable

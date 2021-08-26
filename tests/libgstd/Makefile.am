@@ -1,9 +1,12 @@
-TESTS = test_libgstd_pipeline_create
+TESTS = \
+        test_libgstd_manager          \
+		test_libgstd_debug            \
+		test_libgstd_pipeline_create  
 
 check_PROGRAMS = $(TESTS)
 
 AM_CFLAGS = $(GST_CFLAGS)					\
-			 -I$(top_srcdir)/gstd/		\
+			 -I$(top_srcdir)/gstd/          \
 			 $(GIO_CFLAGS)					\
 			 $(GIO_UNIX_CFLAGS)				\
 			 $(LIBSOUP_CFLAGS)				\
@@ -14,3 +17,4 @@ AM_CFLAGS = $(GST_CFLAGS)					\
              -I$(top_srcdir)/libgstd
 
 AM_LDFLAGS = $(GST_LIBS) $(GIO_LIBS) $(GJSON_LIBS) $(LIBSOUP_LIBS) $(JANSSON_LIBS) -pthread
+LDADD = $(top_srcdir)/gstd/libgstd-core.la
