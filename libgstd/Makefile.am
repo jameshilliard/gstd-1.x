@@ -6,6 +6,7 @@ gstdinclude_HEADERS = libgstd.h
 libgstd_@GSTD_API_VERSION@_la_SOURCES = \
 	libgstd.c			\
 	libgstd_assert.c	\
+	libgstd_parser.c    \
 	libgstd_json.c		\
 	libgstd_thread.c
 
@@ -23,5 +24,6 @@ libgstd_@GSTD_API_VERSION@_la_LDFLAGS = $(GST_LIBS) $(GIO_LIBS) $(GJSON_LIBS) $(
 
 noinst_HEADERS = \
 	libgstd_assert.h	\
+	libgstd_parser.h    \
 	libgstd_json.h		\
 	libgstd_thread.h

@@ -67,6 +67,7 @@ libgstd_core_la_SOURCES = gstd_session.c		\
 			  gstd_unix.c			\
 			  gstd_signal_list.c	\
 			  ../libgstd/libgstd_assert.c	\
+			  ../libgstd/libgstd_parser.c	\
 			  ../libgstd/libgstd.c			\
 			  ../libgstd/libgstd_json.c		\
 			  ../libgstd/libgstd_thread.c

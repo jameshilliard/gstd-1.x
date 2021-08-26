@@ -41,14 +41,13 @@
 #include "gstd_log.h"
 #include "libgstd_assert.h"
 #include "libgstd_json.h"
+#include "libgstd_parser.h"
 #include "libgstd_thread.h"
 #include "gstd_element.h"
 
 
 #define PRINTF_ERROR -1
 
-static GstdStatus gstd_parser (GstDManager * manager, const gchar * cmd,
-    gchar ** response);
 static GType gstd_supported_ipc_to_ipc (SupportedIpcs code);
 static void gstd_manager_init (GOptionGroup ** gst_group,
     int argc, char *argv[]);
@@ -83,25 +82,6 @@ struct _GstdSyncBusData
   char *message;
   GstdStatus ret;
 };
-
-static GstdStatus
-gstd_parser (GstDManager * manager, const gchar * cmd, gchar ** response)
-{
-  GstdStatus ret = GSTD_LIB_OK;
-  gchar *output = NULL;
-
-  gstd_assert_and_ret_val (NULL != manager, GSTD_LIB_NULL_ARGUMENT);
-  gstd_assert_and_ret_val (NULL != cmd, GSTD_LIB_NULL_ARGUMENT);
-
-  ret = gstd_parser_parse_cmd (manager->session, cmd, &output);
-
-  if (response != NULL) {
-    *response = g_strdup_printf ("%s", output);
-  }
-
-  g_free (output);
-  return ret;
-}
 
 static GType
 gstd_supported_ipc_to_ipc (SupportedIpcs code)
@@ -148,7 +128,7 @@ gstd_crud (GstDManager * manager, const char *operation,
 
   message = g_strdup_printf ("pipeline_%s %s", operation, pipeline_name);
 
-  ret = gstd_parser (manager, message, NULL);
+  ret = gstd_parser (manager->session, message, NULL);
 
   g_free (message);
   message = NULL;
@@ -289,27 +269,27 @@ gstd_manager_debug (GstDManager * manager, const char *threshold,
   gstd_assert_and_ret_val (NULL != threshold, GSTD_LIB_NULL_ARGUMENT);
 
   message = g_strdup_printf ("debug_enable true");
-  ret = gstd_parser (manager, message, NULL);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
 
   message = g_strdup_printf ("debug_threshold %s", threshold);
-  ret = gstd_parser (manager, message, NULL);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
 
   colored = colors == 0 ? "false" : "true";
   message = g_strdup_printf ("debug_color %s", colored);
-  ret = gstd_parser (manager, message, NULL);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
 
   reset_bool = reset == 0 ? "false" : "true";
   message = g_strdup_printf ("debug_reset %s", reset_bool);
-  ret = gstd_parser (manager, message, NULL);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
@@ -501,7 +481,7 @@ gstd_element_get (GstDManager * manager, const char *pname,
 
   va_start (ap, format);
   message = g_strdup_printf ("element_get %s %s %s", pname, element, property);
-  ret = gstd_parser (manager, message, &response);
+  ret = gstd_parser (manager->session, message, &response);
   if (ret != GSTD_LIB_OK) {
     goto unref;
   }
@@ -550,7 +530,7 @@ gstd_element_set (GstDManager * manager, const char *pname,
   message =
       g_strdup_printf ("element_set %s %s %s %s", pname, element, parameter,
       values);
-  ret = gstd_parser (manager, message, NULL);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto unref;
   }

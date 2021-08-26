@@ -20,12 +20,13 @@
 #include <gst/check/gstcheck.h>
 #include <string.h>
 
-#include "gstd_parser.h"
 #include "libgstd.h"
 #include "libgstd_assert.h"
+#include "libgstd_parser.h"
 
 /* Test Fixture */
 static GstDManager *manager;
+static gchar *action, *args;
 
 static void
 setup (void)
@@ -39,6 +40,22 @@ teardown (void)
   gstd_manager_free (manager);
 }
 
+GstdStatus
+gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar **tokens;
+
+  gstd_assert_and_ret_val (NULL != session, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != cmd, GSTD_LIB_NULL_ARGUMENT);
+
+  tokens = g_strsplit (cmd, " ", 2);
+  action = tokens[0];
+  args = tokens[1];
+
+  return ret;
+}
+
 GST_START_TEST (test_manager_debug_successful)
 {
   GstdStatus ret;
@@ -47,6 +64,8 @@ GST_START_TEST (test_manager_debug_successful)
   const int reset = 1;
 
   ret = gstd_manager_debug (manager, threshold, color_enable, reset);
+  g_print ("ACTION: %s\n", action);
+  g_print ("ARGS: %s\n", args);
   assert_equals_int (GSTD_LIB_OK, ret);
 }
 

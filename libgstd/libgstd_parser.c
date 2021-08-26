@@ -1,7 +1,8 @@
 /*
  * GStreamer Daemon - gst-launch on steroids
+ * C library abstracting gstd
  *
- * Copyright (c) 2015-2018 RidgeRun, LLC (http://www.ridgerun.com)
+ * Copyright (c) 2015-2021 RidgeRun, LLC (http://www.ridgerun.com)
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,62 +30,25 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __LIBGSTD_THREAD_H__
-#define __LIBGSTD_THREAD_H__
+#include "libgstd_parser.h"
+#include "libgstd_assert.h"
+#include "gstd_parser.h"
 
-#include <pthread.h>
-
-#include "libgstd.h"
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-typedef struct _GstdThread GstdThread;
-typedef struct _GstdCond GstdCond;
-typedef struct _GstdMutex GstdMutex;
-
-struct _GstdThread
-{
-  pthread_t thread;
-};
-
-struct _GstdCond
-{
-  pthread_cond_t cond;
-};
-
-struct _GstdMutex
-{
-  pthread_mutex_t mutex;
-};
-
-typedef void *(*GstdThreadFunction) (void *);
-  
 GstdStatus
-gstd_thread_new (GstdThread *thread, GstdThreadFunction func, void * user_data);
+gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
+{
+  GstdStatus ret = GSTD_LIB_OK;
+  gchar *output = NULL;
 
-void
-gstd_mutex_init (GstdMutex *mutex);
+  gstd_assert_and_ret_val (NULL != session, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != cmd, GSTD_LIB_NULL_ARGUMENT);
 
-void
-gstd_mutex_lock (GstdMutex *mutex);
+  ret = gstd_parser_parse_cmd (session, cmd, &output);
 
-void
-gstd_mutex_unlock (GstdMutex *mutex);
+  if (response != NULL) {
+    *response = g_strdup_printf ("%s", output);
+  }
 
-void
-gstd_cond_init (GstdCond *mutex);
-
-void
-gstd_cond_wait (GstdCond *cond, GstdMutex *mutex);
-
-void
-gstd_cond_signal (GstdCond *cond);
-
-#ifdef __cplusplus
+  g_free (output);
+  return ret;
 }
-#endif
-
-#endif // __LIBGSTD_THREAD_H__
