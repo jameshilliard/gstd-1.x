@@ -66,19 +66,20 @@ gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
   return GSTD_LIB_OK;
 }
 
-GST_START_TEST (test_pipeline_list_elements_success)
+GST_START_TEST (test_pipeline_list_properties_success)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *expected = "list_elements pipe";
+  const gchar *element_name = "element";
+  const gchar *expected = "list_properties pipe element";
   gchar **response = NULL;
   int array_lenght;
 
   ret =
-      gstd_pipeline_list_elements (manager, pipeline_name, &response,
-      &array_lenght);
-  fail_if (GSTD_LIB_OK != ret);
+      gstd_element_properties_list (manager, pipeline_name, element_name,
+      &response, &array_lenght);
 
+  fail_if (GSTD_LIB_OK != ret);
   assert_equals_string (expected, parser_response);
 
   g_free (response);
@@ -86,13 +87,16 @@ GST_START_TEST (test_pipeline_list_elements_success)
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_list_elements_null_pipeline_name)
+GST_START_TEST (test_pipeline_list_properties_null_pipeline_name)
 {
   GstdStatus ret;
+  const gchar *element_name = "element";
   gchar **response = NULL;
   int array_lenght;
 
-  ret = gstd_pipeline_list_elements (manager, NULL, &response, &array_lenght);
+  ret =
+      gstd_element_properties_list (manager, NULL, element_name, &response,
+      &array_lenght);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 
   g_free (response);
@@ -100,21 +104,7 @@ GST_START_TEST (test_pipeline_list_elements_null_pipeline_name)
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_list_elements_null_list_lenght)
-{
-  GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  gchar **response = NULL;
-
-  ret = gstd_pipeline_list_elements (manager, pipeline_name, &response, NULL);
-  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
-
-  g_free (response);
-}
-
-GST_END_TEST;
-
-GST_START_TEST (test_pipeline_list_elements_null_manager)
+GST_START_TEST (test_pipeline_list_properties_null_element_name)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
@@ -122,8 +112,43 @@ GST_START_TEST (test_pipeline_list_elements_null_manager)
   int array_lenght;
 
   ret =
-      gstd_pipeline_list_elements (NULL, pipeline_name, &response,
+      gstd_element_properties_list (manager, pipeline_name, NULL, &response,
       &array_lenght);
+  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (response);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_pipeline_list_properties_null_list_lenght)
+{
+  GstdStatus ret;
+  const gchar *pipeline_name = "pipe";
+  const gchar *element_name = "element";
+  gchar **response = NULL;
+
+  ret =
+      gstd_element_properties_list (manager, pipeline_name, element_name,
+      &response, NULL);
+  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (response);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_pipeline_list_properties_null_manager)
+{
+  GstdStatus ret;
+  const gchar *pipeline_name = "pipe";
+  const gchar *element_name = "element";
+  gchar **response = NULL;
+  int array_lenght;
+
+  ret =
+      gstd_element_properties_list (NULL, pipeline_name, element_name,
+      &response, &array_lenght);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 
   g_free (response);
@@ -133,20 +158,21 @@ GST_END_TEST;
 
 
 static Suite *
-gstd_pipeline_list_elements_suite (void)
+gstd_pipeline_list_properties_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_list_elements");
+  Suite *suite = suite_create ("gstd_pipeline_list_properties");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_list_elements_success);
-  tcase_add_test (tc, test_pipeline_list_elements_null_pipeline_name);
-  tcase_add_test (tc, test_pipeline_list_elements_null_list_lenght);
-  tcase_add_test (tc, test_pipeline_list_elements_null_manager);
+  tcase_add_test (tc, test_pipeline_list_properties_success);
+  tcase_add_test (tc, test_pipeline_list_properties_null_pipeline_name);
+  tcase_add_test (tc, test_pipeline_list_properties_null_element_name);
+  tcase_add_test (tc, test_pipeline_list_properties_null_list_lenght);
+  tcase_add_test (tc, test_pipeline_list_properties_null_manager);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_list_elements);
+GST_CHECK_MAIN (gstd_pipeline_list_properties);

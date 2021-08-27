@@ -542,7 +542,7 @@ unref:
 
 GstdStatus
 gstd_element_properties_list (GstDManager * manager, const char *pipeline_name,
-    char *element, char **properties[], int *list_lenght)
+    const char *element, char **properties[], int *list_lenght)
 {
   GstdStatus ret = GSTD_LIB_OK;
   gchar *message = NULL;
@@ -555,7 +555,7 @@ gstd_element_properties_list (GstDManager * manager, const char *pipeline_name,
 
   message = g_strdup_printf ("list_properties %s %s", pipeline_name, element);
 
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, &response);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }

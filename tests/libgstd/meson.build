@@ -13,7 +13,8 @@ gstd_tests = [
   ['test_libgstd_pipeline_get_graph.c'],
   ['test_libgstd_pipeline_get_state.c'],
   ['test_libgstd_pipeline_inject_eos.c'],
-  ['test_libgstd_pipeline_list_elements.c']
+  ['test_libgstd_pipeline_list_elements.c'],
+  ['test_libgstd_pipeline_list_properties.c']
 ]
 # Add C Definitions for tests
 test_defines = [

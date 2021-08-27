@@ -12,7 +12,8 @@ TESTS = \
 		test_libgstd_pipeline_get_graph         \
 		test_libgstd_pipeline_get_state         \
 		test_libgstd_pipeline_inject_eos        \
-		test_libgstd_pipeline_list_elements
+		test_libgstd_pipeline_list_elements     \
+		test_libgstd_pipeline_list_properties
 
 check_PROGRAMS = $(TESTS)
 

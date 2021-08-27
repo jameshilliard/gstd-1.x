@@ -324,8 +324,8 @@ GstdStatus gstd_element_set(GstDManager * manager, const char *pname,
  *
  * Returns: GstdStatus indicating success or some failure
  */
-GstdStatus gstd_element_properties_list (GstDManager * manager, const char *pipeline_name, 
-    char *element, char **properties[], int *list_lenght);
+GstdStatus gstd_element_properties_list (GstDManager * manager, const char *pipeline_name,
+    const char *element, char **properties[], int *list_lenght);
 
 /**
  * gstd_pipeline_flush_start:
