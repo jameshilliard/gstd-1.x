@@ -887,7 +887,7 @@ gstd_pipeline_list_signals (GstDManager * manager, const char *pipeline_name,
 
   message = g_strdup_printf ("list_signals %s %s", pipeline_name, element);
 
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, &response);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
