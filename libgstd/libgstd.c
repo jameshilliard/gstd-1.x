@@ -140,24 +140,20 @@ GstdStatus
 gstd_manager_new (SupportedIpcs supported_ipcs[], guint num_ipcs,
     GstDManager ** out, GOptionGroup ** gst_group, int argc, char *argv[])
 {
-  GstDManager *manager;
-  GstdSession *session;
   GstdStatus ret = GSTD_LIB_OK;
-  GstdIpc **ipc_array;
+  GstDManager *manager = NULL;
+  GstdSession *session = NULL;
+  GstdIpc **ipc_array = NULL;
 
   gstd_assert_and_ret_val (NULL != out, GSTD_LIB_NULL_ARGUMENT);
 
-  manager = (GstDManager *) malloc (sizeof (GstDManager));
-  if (NULL == manager) {
-    return GSTD_LIB_OOM;
-  }
-
+  manager = (GstDManager *) g_malloc0 (sizeof (*manager));
   session = gstd_session_new ("Session0");
 
-  // If there is ipcs, then initialize them
-  if (NULL != supported_ipcs) {
-    ipc_array = g_malloc (num_ipcs * sizeof (GstdIpc *));
-    for (int i = 0; i < num_ipcs; i++) {
+  /* If there is ipcs, then initialize them */
+  if (NULL != supported_ipcs && num_ipcs > 0) {
+    ipc_array = g_malloc0 (num_ipcs * sizeof (*ipc_array));
+    for (guint i = 0; i < num_ipcs; i++) {
       ipc_array[i] =
           GSTD_IPC (g_object_new (gstd_supported_ipc_to_ipc (supported_ipcs[i]),
               NULL));
@@ -233,17 +229,16 @@ gstd_manager_ipc_start (GstDManager * manager)
 void
 gstd_manager_ipc_stop (GstDManager * manager)
 {
-  gint i;
+  gint i = 0;
 
   gstd_assert_and_ret (NULL != manager);
-  gstd_assert_and_ret (NULL != manager->ipc_array);
   gstd_assert_and_ret (NULL != manager->session);
 
   /* Run stop for each IPC */
   for (i = 0; i < manager->num_ipcs; i++) {
-    if (TRUE == manager->ipc_array[i]->enabled) {
+    if (NULL != manager->ipc_array[i] && TRUE == manager->ipc_array[i]->enabled) {
       gstd_ipc_stop (manager->ipc_array[i]);
-      g_object_unref (manager->ipc_array[i]);
+      g_clear_object (&manager->ipc_array[i]);
     }
   }
 }
@@ -252,6 +247,9 @@ void
 gstd_manager_free (GstDManager * manager)
 {
   gstd_assert_and_ret (NULL != manager);
+  gstd_manager_ipc_stop (manager);
+  g_free (manager->ipc_array);
+  g_object_unref (manager->session);
   g_free (manager);
   gst_deinit ();
 }
