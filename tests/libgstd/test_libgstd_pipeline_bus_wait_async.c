@@ -171,7 +171,7 @@ GST_START_TEST (test_pipeline_bus_wait_async_bus_no_response)
   }
 
   /* Set the send command to wait for 0s before responding */
-  send_wait_time = 1;
+  send_wait_time = 2;
 
   /*
    * Lock the mutex, this should be unlocked by the callback function

@@ -41,83 +41,107 @@ teardown (void)
 }
 
 GstdStatus
+gstd_json_child_string (const char *json, const char *data_name, char **out)
+{
+  gstd_assert_and_ret_val (NULL != json, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != data_name, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != out, GSTD_LIB_NULL_ARGUMENT);
+
+  *out = malloc (5);
+  (*out)[0] = 'N';
+  (*out)[1] = 'U';
+  (*out)[2] = 'L';
+  (*out)[3] = 'L';
+  (*out)[4] = '\0';
+
+  return GSTD_LIB_OK;
+}
+
+GstdStatus
 gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
 {
   gstd_assert_and_ret_val (NULL != session, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != cmd, GSTD_LIB_NULL_ARGUMENT);
 
   parser_response = g_strdup_printf ("%s", cmd);
+  *response = g_strdup_printf ("%s", cmd);
 
   return GSTD_LIB_OK;
 }
 
-GST_START_TEST (test_pipeline_create_successful)
+GST_START_TEST (test_pipeline_get_state_success)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
-  const gchar *expected = "pipeline_create pipe fakesrc ! fakesink";
+  gchar *out = NULL;
+  const gchar *expected = "read /pipelines/pipe/state";
+  const gchar *reference_state = "NULL";
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_state (manager, pipeline_name, &out);
   fail_if (GSTD_LIB_OK != ret);
 
   assert_equals_string (expected, parser_response);
+  assert_equals_string (reference_state, out);
+
+  g_free (out);
 }
 
 GST_END_TEST;
 
 
-GST_START_TEST (test_pipeline_create_null_name)
+GST_START_TEST (test_pipeline_get_state_null_name)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = NULL;
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  gchar *out = NULL;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_state (manager, NULL, &out);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (out);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_desc)
-{
-  GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = NULL;
-
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
-  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
-}
-
-GST_END_TEST;
-
-GST_START_TEST (test_pipeline_create_null_manager)
+GST_START_TEST (test_pipeline_get_state_null_output)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (NULL, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_state (manager, pipeline_name, NULL);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+}
+
+GST_END_TEST;
+
+GST_START_TEST (test_pipeline_get_state_null_manager)
+{
+  GstdStatus ret;
+  const gchar *pipeline_name = "pipe";
+  gchar *out = NULL;
+
+  ret = gstd_pipeline_get_state (NULL, pipeline_name, &out);
+  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (out);
 }
 
 GST_END_TEST;
 
 static Suite *
-gstd_pipeline_create_suite (void)
+gstd_pipeline_get_state_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_create");
+  Suite *suite = suite_create ("gstd_pipeline_get_state");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_create_successful);
-  tcase_add_test (tc, test_pipeline_create_null_name);
-  tcase_add_test (tc, test_pipeline_create_null_desc);
-  tcase_add_test (tc, test_pipeline_create_null_manager);
+  tcase_add_test (tc, test_pipeline_get_state_success);
+  tcase_add_test (tc, test_pipeline_get_state_null_name);
+  tcase_add_test (tc, test_pipeline_get_state_null_output);
+  tcase_add_test (tc, test_pipeline_get_state_null_manager);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_create);
+GST_CHECK_MAIN (gstd_pipeline_get_state);

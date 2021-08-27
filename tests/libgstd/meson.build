@@ -6,7 +6,14 @@ gstd_tests = [
   ['test_libgstd_element_set.c'],
   ['test_libgstd_pipeline_bus_wait_async.c'],
   ['test_libgstd_pipeline_bus_wait.c'],
-  ['test_libgstd_pipeline_create.c']
+  ['test_libgstd_pipeline_create.c'],
+  ['test_libgstd_pipeline_delete.c'],
+  ['test_libgstd_pipeline_flush_start.c'],
+  ['test_libgstd_pipeline_flush_stop.c'],
+  ['test_libgstd_pipeline_get_graph.c'],
+  ['test_libgstd_pipeline_get_state.c'],
+  ['test_libgstd_pipeline_inject_eos.c'],
+  ['test_libgstd_pipeline_list_elements.c']
 ]
 # Add C Definitions for tests
 test_defines = [

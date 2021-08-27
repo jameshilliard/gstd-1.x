@@ -51,14 +51,14 @@ gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
   return GSTD_LIB_OK;
 }
 
-GST_START_TEST (test_pipeline_create_successful)
+GST_START_TEST (test_pipeline_get_graph_success)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
-  const gchar *expected = "pipeline_create pipe fakesrc ! fakesink";
+  const gchar *expected = "pipeline_get_graph pipe";
+  gchar *pipeline_desc = NULL;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_graph (manager, pipeline_name, &pipeline_desc);
   fail_if (GSTD_LIB_OK != ret);
 
   assert_equals_string (expected, parser_response);
@@ -67,57 +67,56 @@ GST_START_TEST (test_pipeline_create_successful)
 GST_END_TEST;
 
 
-GST_START_TEST (test_pipeline_create_null_name)
+GST_START_TEST (test_pipeline_get_graph_null_name)
 {
   GstdStatus ret;
   const gchar *pipeline_name = NULL;
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  gchar *pipeline_desc = NULL;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_graph (manager, pipeline_name, &pipeline_desc);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_desc)
+GST_START_TEST (test_pipeline_get_graph_null_output)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = NULL;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_graph (manager, pipeline_name, NULL);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_manager)
+GST_START_TEST (test_pipeline_get_graph_null_manager)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  gchar *pipeline_desc = NULL;
 
-  ret = gstd_pipeline_create (NULL, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_get_graph (NULL, pipeline_name, &pipeline_desc);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
 static Suite *
-gstd_pipeline_create_suite (void)
+gstd_pipeline_get_graph_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_create");
+  Suite *suite = suite_create ("gstd_pipeline_get_graph");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_create_successful);
-  tcase_add_test (tc, test_pipeline_create_null_name);
-  tcase_add_test (tc, test_pipeline_create_null_desc);
-  tcase_add_test (tc, test_pipeline_create_null_manager);
+  tcase_add_test (tc, test_pipeline_get_graph_success);
+  tcase_add_test (tc, test_pipeline_get_graph_null_name);
+  tcase_add_test (tc, test_pipeline_get_graph_null_output);
+  tcase_add_test (tc, test_pipeline_get_graph_null_manager);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_create);
+GST_CHECK_MAIN (gstd_pipeline_get_graph);

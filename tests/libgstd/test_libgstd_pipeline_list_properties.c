@@ -41,83 +41,112 @@ teardown (void)
 }
 
 GstdStatus
+gstd_json_get_child_char_array (const char *json,
+    const char *array_name, const char *element_name, char **out[],
+    int *array_lenght)
+{
+  gstd_assert_and_ret_val (NULL != json, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != array_name, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != element_name, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != out, GSTD_LIB_NULL_ARGUMENT);
+  gstd_assert_and_ret_val (NULL != array_lenght, GSTD_LIB_NULL_ARGUMENT);
+
+  return GSTD_LIB_OK;
+}
+
+GstdStatus
 gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
 {
   gstd_assert_and_ret_val (NULL != session, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != cmd, GSTD_LIB_NULL_ARGUMENT);
 
   parser_response = g_strdup_printf ("%s", cmd);
+  *response = g_strdup_printf ("%s", cmd);
 
   return GSTD_LIB_OK;
 }
 
-GST_START_TEST (test_pipeline_create_successful)
+GST_START_TEST (test_pipeline_list_elements_success)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
-  const gchar *expected = "pipeline_create pipe fakesrc ! fakesink";
+  const gchar *expected = "list_elements pipe";
+  gchar **response = NULL;
+  int array_lenght;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret =
+      gstd_pipeline_list_elements (manager, pipeline_name, &response,
+      &array_lenght);
   fail_if (GSTD_LIB_OK != ret);
 
   assert_equals_string (expected, parser_response);
+
+  g_free (response);
 }
 
 GST_END_TEST;
 
-
-GST_START_TEST (test_pipeline_create_null_name)
+GST_START_TEST (test_pipeline_list_elements_null_pipeline_name)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = NULL;
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  gchar **response = NULL;
+  int array_lenght;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_list_elements (manager, NULL, &response, &array_lenght);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (response);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_desc)
-{
-  GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = NULL;
-
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
-  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
-}
-
-GST_END_TEST;
-
-GST_START_TEST (test_pipeline_create_null_manager)
+GST_START_TEST (test_pipeline_list_elements_null_list_lenght)
 {
   GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
+  gchar **response = NULL;
 
-  ret = gstd_pipeline_create (NULL, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_list_elements (manager, pipeline_name, &response, NULL);
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (response);
 }
 
 GST_END_TEST;
+
+GST_START_TEST (test_pipeline_list_elements_null_manager)
+{
+  GstdStatus ret;
+  const gchar *pipeline_name = "pipe";
+  gchar **response = NULL;
+  int array_lenght;
+
+  ret =
+      gstd_pipeline_list_elements (NULL, pipeline_name, &response,
+      &array_lenght);
+  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+
+  g_free (response);
+}
+
+GST_END_TEST;
+
 
 static Suite *
-gstd_pipeline_create_suite (void)
+gstd_pipeline_list_elements_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_create");
+  Suite *suite = suite_create ("gstd_pipeline_list_elements");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_create_successful);
-  tcase_add_test (tc, test_pipeline_create_null_name);
-  tcase_add_test (tc, test_pipeline_create_null_desc);
-  tcase_add_test (tc, test_pipeline_create_null_manager);
+  tcase_add_test (tc, test_pipeline_list_elements_success);
+  tcase_add_test (tc, test_pipeline_list_elements_null_pipeline_name);
+  tcase_add_test (tc, test_pipeline_list_elements_null_list_lenght);
+  tcase_add_test (tc, test_pipeline_list_elements_null_manager);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_create);
+GST_CHECK_MAIN (gstd_pipeline_list_elements);

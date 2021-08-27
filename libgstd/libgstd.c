@@ -424,7 +424,7 @@ gstd_pipeline_get_graph (GstDManager * manager, const char *pipeline_name,
 
   message = g_strdup_printf ("pipeline_get_graph %s", pipeline_name);
 
-  ret = gstd_parser_parse_cmd (manager->session, message, &output);
+  ret = gstd_parser (manager->session, message, &output);
 
   *response = g_strdup_printf ("%s", output);
 
@@ -577,19 +577,16 @@ gstd_pipeline_flush_start (GstDManager * manager, const char *pipeline_name)
 {
   GstdStatus ret = GSTD_LIB_OK;
   gchar *message = NULL;
-  gchar *output = NULL;
 
   gstd_assert_and_ret_val (NULL != manager, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != manager->session, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_LIB_NULL_ARGUMENT);
 
   message = g_strdup_printf ("event_flush_start %s", pipeline_name);
-  ret = gstd_parser_parse_cmd (manager->session, message, &output);
+  ret = gstd_parser (manager->session, message, NULL);
 
   g_free (message);
-  g_free (output);
   message = NULL;
-  output = NULL;
 
   return ret;
 }
@@ -601,7 +598,6 @@ gstd_pipeline_flush_stop (GstDManager * manager, const char *pipeline_name,
   GstdStatus ret = GSTD_LIB_OK;
   const gchar *to_reset;
   gchar *message = NULL;
-  gchar *output = NULL;
 
   gstd_assert_and_ret_val (NULL != manager, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != manager->session, GSTD_LIB_NULL_ARGUMENT);
@@ -610,12 +606,10 @@ gstd_pipeline_flush_stop (GstDManager * manager, const char *pipeline_name,
   to_reset = reset == 0 ? "false" : "true";
   message =
       g_strdup_printf ("event_flush_start %s %s", pipeline_name, to_reset);
-  ret = gstd_parser_parse_cmd (manager->session, message, &output);
+  ret = gstd_parser (manager->session, message, NULL);
 
   g_free (message);
-  g_free (output);
   message = NULL;
-  output = NULL;
 
   return ret;
 }
@@ -625,19 +619,16 @@ gstd_pipeline_inject_eos (GstDManager * manager, const char *pipeline_name)
 {
   GstdStatus ret = GSTD_LIB_OK;
   gchar *message = NULL;
-  gchar *output = NULL;
 
   gstd_assert_and_ret_val (NULL != manager, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != manager->session, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != pipeline_name, GSTD_LIB_NULL_ARGUMENT);
 
   message = g_strdup_printf ("event_eos %s", pipeline_name);
-  ret = gstd_parser_parse_cmd (manager->session, message, &output);
+  ret = gstd_parser (manager->session, message, NULL);
 
   g_free (message);
-  g_free (output);
   message = NULL;
-  output = NULL;
 
   return ret;
 }
@@ -683,7 +674,7 @@ gstd_pipeline_list_elements (GstDManager * manager, const char *pipeline_name,
 
   message = g_strdup_printf ("list_elements %s", pipeline_name);
 
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, &response);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
@@ -866,7 +857,7 @@ gstd_pipeline_get_state (GstDManager * manager, const char *pipeline_name,
 
   message = g_strdup_printf ("read /pipelines/%s/state", pipeline_name);
 
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, &response);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }

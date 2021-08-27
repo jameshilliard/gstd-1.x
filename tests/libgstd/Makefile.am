@@ -5,7 +5,14 @@ TESTS = \
 		test_libgstd_element_set                \
 		test_libgstd_pipeline_bus_wait_async    \
 		test_libgstd_pipeline_bus_wait          \
-		test_libgstd_pipeline_create  
+		test_libgstd_pipeline_create            \
+		test_libgstd_pipeline_delete            \
+		test_libgstd_pipeline_flush_start       \
+		test_libgstd_pipeline_flush_stop        \
+		test_libgstd_pipeline_get_graph         \
+		test_libgstd_pipeline_get_state         \
+		test_libgstd_pipeline_inject_eos        \
+		test_libgstd_pipeline_list_elements
 
 check_PROGRAMS = $(TESTS)
 

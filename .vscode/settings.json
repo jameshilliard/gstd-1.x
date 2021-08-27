@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "libgstd_parser.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "libgstd_json.h": "c"
     }
 }
