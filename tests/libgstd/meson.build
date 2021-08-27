@@ -2,6 +2,9 @@
 gstd_tests = [
   ['test_libgstd_manager.c'],
   ['test_libgstd_debug.c'],
+  ['test_libgstd_element_get.c'],
+  ['test_libgstd_element_set.c'],
+  ['test_libgstd_pipeline_bus_wait_async.c'],
   ['test_libgstd_pipeline_create.c']
 ]
 # Add C Definitions for tests

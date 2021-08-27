@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "libgstd_parser.h": "c",
+        "time.h": "c"
+    }
+}

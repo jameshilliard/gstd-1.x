@@ -718,7 +718,7 @@ gstd_bus_thread (void *user_data)
   GstDManager *manager = data->manager;
 
   message = g_strdup_printf ("bus_read %s", pipeline_name);
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, &response);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
@@ -745,7 +745,6 @@ gstd_pipeline_bus_wait_async (GstDManager * manager,
   GstdThread thread;
   GstdThreadData *data;
   gchar *message = NULL;
-  gchar *response = NULL;
 
   gstd_assert_and_ret_val (NULL != manager, GSTD_LIB_NULL_ARGUMENT);
   gstd_assert_and_ret_val (NULL != manager->session, GSTD_LIB_NULL_ARGUMENT);
@@ -753,14 +752,13 @@ gstd_pipeline_bus_wait_async (GstDManager * manager,
   gstd_assert_and_ret_val (NULL != message_name, GSTD_LIB_NULL_ARGUMENT);
 
   message = g_strdup_printf ("bus_filter %s %s", pipeline_name, message_name);
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
-  response = NULL;
 
   message = g_strdup_printf ("bus_timeout %s %lld", pipeline_name, timeout);
-  ret = gstd_parser_parse_cmd (manager->session, message, &response);
+  ret = gstd_parser (manager->session, message, NULL);
   if (ret != GSTD_LIB_OK) {
     goto out;
   }
@@ -777,9 +775,7 @@ gstd_pipeline_bus_wait_async (GstDManager * manager,
 
 out:
   g_free (message);
-  g_free (response);
   message = NULL;
-  response = NULL;
 
   return ret;
 }

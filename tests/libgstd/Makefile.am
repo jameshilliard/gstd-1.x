@@ -1,6 +1,9 @@
 TESTS = \
-        test_libgstd_manager          \
-		test_libgstd_debug            \
+        test_libgstd_manager                    \
+		test_libgstd_debug                      \
+		test_libgstd_element_get                \
+		test_libgstd_element_set                \
+		test_libgstd_pipeline_bus_wait_async    \
 		test_libgstd_pipeline_create  
 
 check_PROGRAMS = $(TESTS)
