@@ -980,7 +980,7 @@ gstd_signal_sink_connect (GstDManager * manager,
 
   ret = gstd_get_by_uri (manager->session, uri, &node);
   if (ret || NULL == node) {
-    goto out;
+    return ret;
   }
 
   gstd_object_read (node, pipeline_name, &pipe);
@@ -1044,7 +1044,7 @@ gstd_signal_sink_disconnect (GstDManager * manager,
 
   ret = gstd_get_by_uri (manager->session, uri, &node);
   if (ret || NULL == node) {
-    goto out;
+    return ret;
   }
 
   gstd_object_read (node, pipeline_name, &pipe);
