@@ -37,6 +37,10 @@ static void
 teardown (void)
 {
   gstd_manager_free (manager);
+  g_free (enable);
+  g_free (threshold);
+  g_free (color);
+  g_free (reset);
 }
 
 GstdStatus

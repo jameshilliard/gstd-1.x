@@ -41,6 +41,7 @@ teardown (void)
   g_free (parser_response);
 }
 
+
 GstdStatus
 gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
 {
@@ -52,73 +53,104 @@ gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
   return GSTD_LIB_OK;
 }
 
-GST_START_TEST (test_pipeline_create_successful)
+GST_START_TEST (test_pipeline_signal_disconnect_success)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
-  const gchar *expected = "pipeline_create pipe fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  const gchar *pipeline_name = "pipe";
+  const gchar *element_name = "element";
+  const gchar *signal_name = "signal";
+
+  const gchar *expected_signal_disconnect =
+      "signal_disconnect pipe element signal";
+
+  ret = gstd_pipeline_signal_disconnect (manager, pipeline_name, element_name,
+      signal_name);
+
   fail_if (GSTD_LIB_OK != ret);
-
-  assert_equals_string (expected, parser_response);
+  assert_equals_string (expected_signal_disconnect, parser_response);
 }
 
 GST_END_TEST;
 
-
-GST_START_TEST (test_pipeline_create_null_name)
+GST_START_TEST (test_pipeline_signal_disconnect_null_pipeline_name)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = NULL;
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  const gchar *element_name = "element";
+  const gchar *signal_name = "signal";
+
+  ret = gstd_pipeline_signal_disconnect (manager, NULL, element_name,
+      signal_name);
+
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_desc)
+GST_START_TEST (test_pipeline_signal_disconnect_null_element_name)
 {
   GstdStatus ret;
+
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = NULL;
+  const gchar *signal_name = "signal";
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  ret = gstd_pipeline_signal_disconnect (manager, pipeline_name, NULL,
+      signal_name);
+
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_manager)
+GST_START_TEST (test_pipeline_signal_disconnect_null_signal_name)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (NULL, pipeline_name, pipeline_desc);
+  const gchar *pipeline_name = "pipe";
+  const gchar *element_name = "element";
+
+  ret = gstd_pipeline_signal_disconnect (manager, pipeline_name, element_name,
+      NULL);
+
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
+
+GST_START_TEST (test_pipeline_signal_disconnect_null_manager)
+{
+  GstdStatus ret;
+
+  const gchar *pipeline_name = "pipe";
+  const gchar *element_name = "element";
+  const gchar *signal_name = "signal";
+
+  ret = gstd_pipeline_signal_disconnect (NULL, pipeline_name, element_name,
+      signal_name);
+
+  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+}
+
+GST_END_TEST;
+
 
 static Suite *
-gstd_pipeline_create_suite (void)
+gstd_pipeline_signal_disconnect_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_create");
+  Suite *suite = suite_create ("gstd_pipeline_signal_disconnect");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_create_successful);
-  tcase_add_test (tc, test_pipeline_create_null_name);
-  tcase_add_test (tc, test_pipeline_create_null_desc);
-  tcase_add_test (tc, test_pipeline_create_null_manager);
+  tcase_add_test (tc, test_pipeline_signal_disconnect_success);
+  tcase_add_test (tc, test_pipeline_signal_disconnect_null_pipeline_name);
+  tcase_add_test (tc, test_pipeline_signal_disconnect_null_element_name);
+  tcase_add_test (tc, test_pipeline_signal_disconnect_null_signal_name);
+  tcase_add_test (tc, test_pipeline_signal_disconnect_null_manager);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_create);
+GST_CHECK_MAIN (gstd_pipeline_signal_disconnect);

@@ -16,7 +16,16 @@ gstd_tests = [
   ['test_libgstd_pipeline_list_elements.c'],
   ['test_libgstd_pipeline_list_properties.c'],
   ['test_libgstd_pipeline_list_signals.c'],
-  ['test_libgstd_pipeline_list.c']
+  ['test_libgstd_pipeline_list.c'],
+  ['test_libgstd_pipeline_pause.c'],
+  ['test_libgstd_pipeline_play.c'],
+  ['test_libgstd_pipeline_stop.c'],
+  ['test_libgstd_pipeline_seek.c'],
+  ['test_libgstd_pipeline_signal_connect.c'],
+  ['test_libgstd_pipeline_signal_disconnect.c'],
+  ['test_libgstd_pipeline_verbose.c'],
+  ['test_libgstd_signal_sink_connect.c'],
+  ['test_libgstd_signal_sink_disconnect.c']
 ]
 # Add C Definitions for tests
 test_defines = [

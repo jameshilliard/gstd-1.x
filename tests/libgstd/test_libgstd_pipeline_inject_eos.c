@@ -38,6 +38,7 @@ static void
 teardown (void)
 {
   gstd_manager_free (manager);
+  g_free (parser_response);
 }
 
 GstdStatus

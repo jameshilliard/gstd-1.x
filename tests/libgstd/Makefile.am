@@ -15,7 +15,16 @@ TESTS = \
 		test_libgstd_pipeline_list_elements     \
 		test_libgstd_pipeline_list_properties   \
 		test_libgstd_pipeline_list_signals      \
-		test_libgstd_pipeline_list
+		test_libgstd_pipeline_list              \
+		test_libgstd_pipeline_pause             \
+		test_libgstd_pipeline_play              \
+		test_libgstd_pipeline_stop              \
+		test_libgstd_pipeline_seek              \
+		test_libgstd_pipeline_signal_connect    \
+		test_libgstd_pipeline_signal_disconnect \
+		test_libgstd_pipeline_verbose           \
+		test_libgstd_signal_sink_connect        \
+		test_libgstd_signal_sink_disconnect      
 
 check_PROGRAMS = $(TESTS)
 

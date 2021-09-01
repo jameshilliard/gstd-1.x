@@ -33,9 +33,6 @@
 #include "libgstd.h"
 
 GstdStatus
-gstd_json_get_int (const char * json, const char * name, int * out);
-
-GstdStatus
 gstd_json_is_null (const char * json, const char * name, int * out);
 
 /**

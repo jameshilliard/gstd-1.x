@@ -41,6 +41,7 @@ teardown (void)
   g_free (parser_response);
 }
 
+
 GstdStatus
 gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
 {
@@ -52,73 +53,82 @@ gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
   return GSTD_LIB_OK;
 }
 
-GST_START_TEST (test_pipeline_create_successful)
+GST_START_TEST (test_pipeline_verbose_true_success)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
-  const gchar *expected = "pipeline_create pipe fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
+  const gchar *pipeline_name = "pipe";
+  const gint value = 1;
+
+  const gchar *expected_verbose = "pipeline_verbose pipe true";
+
+  ret = gstd_pipeline_verbose (manager, pipeline_name, value);
+
   fail_if (GSTD_LIB_OK != ret);
-
-  assert_equals_string (expected, parser_response);
+  assert_equals_string (expected_verbose, parser_response);
 }
 
 GST_END_TEST;
 
-
-GST_START_TEST (test_pipeline_create_null_name)
+GST_START_TEST (test_pipeline_verbose_false_success)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = NULL;
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
-  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
-}
-
-GST_END_TEST;
-
-GST_START_TEST (test_pipeline_create_null_desc)
-{
-  GstdStatus ret;
   const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = NULL;
+  const gint value = 0;
 
-  ret = gstd_pipeline_create (manager, pipeline_name, pipeline_desc);
-  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+  const gchar *expected_verbose = "pipeline_verbose pipe false";
+
+  ret = gstd_pipeline_verbose (manager, pipeline_name, value);
+
+  fail_if (GSTD_LIB_OK != ret);
+  assert_equals_string (expected_verbose, parser_response);
 }
 
 GST_END_TEST;
 
-GST_START_TEST (test_pipeline_create_null_manager)
+GST_START_TEST (test_pipeline_verbose_null_pipeline_name)
 {
   GstdStatus ret;
-  const gchar *pipeline_name = "pipe";
-  const gchar *pipeline_desc = "fakesrc ! fakesink";
 
-  ret = gstd_pipeline_create (NULL, pipeline_name, pipeline_desc);
+  const gint value = 1;
+
+  ret = gstd_pipeline_verbose (manager, NULL, value);
+
   assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
 }
 
 GST_END_TEST;
+
+GST_START_TEST (test_pipeline_verbose_null_manager)
+{
+  GstdStatus ret;
+
+  const gchar *pipeline_name = "pipe";
+  const gint value = 1;
+
+  ret = gstd_pipeline_verbose (NULL, pipeline_name, value);
+  assert_equals_int (GSTD_LIB_NULL_ARGUMENT, ret);
+}
+
+GST_END_TEST;
+
 
 static Suite *
-gstd_pipeline_create_suite (void)
+gstd_pipeline_verbose_suite (void)
 {
-  Suite *suite = suite_create ("gstd_pipeline_create");
+  Suite *suite = suite_create ("gstd_pipeline_verbose");
   TCase *tc = tcase_create ("general");
 
   suite_add_tcase (suite, tc);
 
   tcase_add_checked_fixture (tc, setup, teardown);
-  tcase_add_test (tc, test_pipeline_create_successful);
-  tcase_add_test (tc, test_pipeline_create_null_name);
-  tcase_add_test (tc, test_pipeline_create_null_desc);
-  tcase_add_test (tc, test_pipeline_create_null_manager);
+  tcase_add_test (tc, test_pipeline_verbose_true_success);
+  tcase_add_test (tc, test_pipeline_verbose_false_success);
+  tcase_add_test (tc, test_pipeline_verbose_null_pipeline_name);
+  tcase_add_test (tc, test_pipeline_verbose_null_manager);
 
   return suite;
 }
 
-GST_CHECK_MAIN (gstd_pipeline_create);
+GST_CHECK_MAIN (gstd_pipeline_verbose);

@@ -71,6 +71,9 @@ static void
 teardown (void)
 {
   gstd_manager_free (manager);
+  g_free (bus_filter);
+  g_free (bus_timeout);
+  g_free (bus_read);
 }
 
 GstdStatus

@@ -26,6 +26,10 @@
 #include "libgstd_json.h"
 #include "libgstd_parser.h"
 
+#define BUS_FILTER "bus_filter"
+#define BUS_TIMEOUT "bus_timeout"
+#define BUS_READ "bus_read"
+
 /* Test Fixture */
 static GstDManager *manager;
 static gchar *bus_filter, *bus_timeout, *bus_read;
@@ -42,6 +46,9 @@ static void
 teardown (void)
 {
   gstd_manager_free (manager);
+  g_free (bus_filter);
+  g_free (bus_timeout);
+  g_free (bus_read);
 }
 
 GstdStatus
@@ -80,11 +87,11 @@ gstd_parser (GstdSession * session, const gchar * cmd, gchar ** response)
   tokens = g_strsplit (cmd, " ", 2);
   action = tokens[0];
 
-  if (!g_ascii_strcasecmp ("bus_filter", action)) {
+  if (!g_ascii_strcasecmp (BUS_FILTER, action)) {
     bus_filter = g_strdup_printf ("%s", cmd);
-  } else if (!g_ascii_strcasecmp ("bus_timeout", action)) {
+  } else if (!g_ascii_strcasecmp (BUS_TIMEOUT, action)) {
     bus_timeout = g_strdup_printf ("%s", cmd);
-  } else if (!g_ascii_strcasecmp ("bus_read", action)) {
+  } else if (!g_ascii_strcasecmp (BUS_READ, action)) {
     if (send_wait_time > 0) {
       sleep (send_wait_time);
     }

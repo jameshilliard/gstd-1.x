@@ -69,37 +69,6 @@ out:
 }
 
 GstdStatus
-gstd_json_get_int (const char *json, const char *name, int *out)
-{
-  GstdStatus ret;
-  json_t *root;
-  json_t *data;
-
-  gstd_assert_and_ret_val (json != NULL, GSTD_LIB_NULL_ARGUMENT);
-  gstd_assert_and_ret_val (name != NULL, GSTD_LIB_NULL_ARGUMENT);
-  gstd_assert_and_ret_val (out != NULL, GSTD_LIB_NULL_ARGUMENT);
-
-  ret = gstd_json_get_value (json, name, &root, &data);
-  if (GSTD_LIB_OK != ret) {
-    goto out;
-  }
-
-  if (!json_is_integer (data)) {
-    ret = GSTD_LIB_TYPE_ERROR;
-    goto unref;
-  }
-
-  *out = json_integer_value (data);
-  ret = GSTD_LIB_OK;
-
-unref:
-  json_decref (root);
-
-out:
-  return ret;
-}
-
-GstdStatus
 gstd_json_is_null (const char *json, const char *name, int *out)
 {
   GstdStatus ret;
