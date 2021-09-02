@@ -109,7 +109,7 @@ gstd_manager_new (SupportedIpcs supported_ipcs[], uint num_ipcs,
  *
  */
 void
-gstd_manager_ipc_options (GstDManager * manager, GOptionGroup **ipc_group);
+gstd_manager_ipc_options (GstDManager * manager, GOptionGroup * ipc_group[]);
 
 /**
  * gstd_manager_ipc_start:

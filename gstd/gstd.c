@@ -75,7 +75,7 @@ main (gint argc, gchar * argv[])
   GError *error = NULL;
   GOptionContext *context;
   GOptionGroup *gstreamer_group = NULL;
-  GOptionGroup *ipc_group = NULL;
+  GOptionGroup **ipc_group_array = NULL;
   gint ret = EXIT_SUCCESS;
   gchar *current_filename = NULL;
 
@@ -90,7 +90,7 @@ main (gint argc, gchar * argv[])
     GSTD_IPC_TYPE_HTTP,
   };
 
-  guint num_ipcs = (sizeof (supported_ipcs) / sizeof (GType));
+  const guint num_ipcs = (sizeof (supported_ipcs) / sizeof (SupportedIpcs));
   GOptionGroup **optiongroup_array =
       g_malloc (num_ipcs * sizeof (GOptionGroup *));
 
@@ -130,9 +130,11 @@ main (gint argc, gchar * argv[])
   g_option_context_add_group (context, gstreamer_group);
 
   /* Read option group for each IPC */
-  ipc_group = g_malloc (num_ipcs * sizeof (GOptionGroup *));
-  gstd_manager_ipc_options (manager, &ipc_group);       // If you don't want this option, you can avoid calling this function
-  g_option_context_add_group (context, ipc_group);
+  ipc_group_array = g_malloc0 (num_ipcs * sizeof (*ipc_group_array));
+  gstd_manager_ipc_options (manager, ipc_group_array);  /* If you don't want this option, you can avoid calling this function */
+  for (int i = 0; i < num_ipcs; i++) {
+    g_option_context_add_group (context, ipc_group_array[i]);
+  }
 
   /* Parse the options before starting */
   if (!g_option_context_parse (context, &argc, &argv, &error)) {

@@ -173,16 +173,15 @@ gstd_manager_new (SupportedIpcs supported_ipcs[], guint num_ipcs,
 }
 
 void
-gstd_manager_ipc_options (GstDManager * manager, GOptionGroup ** ipc_group)
+gstd_manager_ipc_options (GstDManager * manager, GOptionGroup * ipc_group[])
 {
-  gint i;
-
   gstd_assert_and_ret (NULL != manager);
   gstd_assert_and_ret (NULL != manager->ipc_array);
   gstd_assert_and_ret (NULL != ipc_group);
 
-  for (i = 0; i < manager->num_ipcs; i++) {
-    gstd_ipc_get_option_group (manager->ipc_array[i], &ipc_group[i]);
+  for (gint ipc_idx = 0; ipc_idx < manager->num_ipcs; ipc_idx++) {
+    gstd_ipc_get_option_group (manager->ipc_array[ipc_idx],
+        &ipc_group[ipc_idx]);
   }
 }
 
