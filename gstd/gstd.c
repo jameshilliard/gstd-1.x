@@ -2,32 +2,20 @@
  * This file is part of GStreamer Daemon
  * Copyright 2015-2022 Ridgerun, LLC (http://www.ridgerun.com)
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
  *
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -87,6 +75,7 @@ main (gint argc, gchar * argv[])
   gint ret = EXIT_SUCCESS;
   gchar *current_filename = NULL;
   gchar *filename = NULL;
+  gboolean nolog = FALSE;
   gboolean parent = FALSE;
 
   GstD *gstd = NULL;
@@ -112,6 +101,10 @@ main (gint argc, gchar * argv[])
     ,
     {"gst-log-filename", 'd', 0, G_OPTION_ARG_FILENAME, &gstlogfile,
         "Create gst.log file to path", NULL}
+    ,
+    {"no-log", 'L', 0, G_OPTION_ARG_NONE, &nolog,
+          "Disable file logging when gstd is running in daemon mode. Takes precedence over -l and -d.",
+        NULL}
     ,
     {NULL}
   };
@@ -140,10 +133,20 @@ main (gint argc, gchar * argv[])
     goto out;
   }
 
+  /* If we need to daemonize or interact with the daemon (like killing
+   * it, for example) we need to initialize the daemon subsystem.
+   */
   if (daemon || kill) {
-    if (!gstd_log_init (gstdlogfile, gstlogfile)) {
-      ret = EXIT_FAILURE;
-      goto out;
+
+    /* Initialize the file logging only if:
+     * - the user didn't explicitly request it by setting --no-log
+     * - the user didn't invoke gstd to kill the daemon
+     */
+    if (!nolog && !kill) {
+      if (!gstd_log_init (gstdlogfile, gstlogfile)) {
+        ret = EXIT_FAILURE;
+        goto out;
+      }
     }
 
     if (!gstd_daemon_init (argc, argv, pidfile)) {
@@ -170,7 +173,11 @@ main (gint argc, gchar * argv[])
     if (parent) {
       if (!quiet) {
         filename = gstd_log_get_current_gstd ();
-        g_print ("Log traces will be saved to %s.\n", filename);
+        if (nolog) {
+          g_print ("Log traces have been disabled.\n");
+        } else {
+          g_print ("Log traces will be saved to %s.\n", filename);
+        }
         g_print ("Detaching from parent process.\n");
         g_free (filename);
       }
