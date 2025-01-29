@@ -2,32 +2,20 @@
  * This file is part of GStreamer Daemon
  * Copyright 2015-2022 Ridgerun, LLC (http://www.ridgerun.com)
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
  *
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __GSTD_IFORMATTER_H__
@@ -37,13 +25,11 @@
 #include "gstd_object.h"
 
 G_BEGIN_DECLS
-
 #define GSTD_TYPE_IFORMATTER                (gstd_iformatter_get_type ())
 #define GSTD_IFORMATTER(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), GSTD_TYPE_IFORMATTER, GstdIFormatter))
 #define GSTD_IS_IFORMATTER(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GSTD_TYPE_IFORMATTER))
 #define GSTD_IFORMATTER_GET_INTERFACE(inst) (G_TYPE_INSTANCE_GET_INTERFACE ((inst), GSTD_TYPE_IFORMATTER, GstdIFormatterInterface))
-
-GType gstd_iformatter_get_type (void);
+    GType gstd_iformatter_get_type (void);
 
 typedef struct _GstdIFormatter GstdIFormatter;
 typedef struct _GstdIFormatterInterface GstdIFormatterInterface;
@@ -64,6 +50,8 @@ struct _GstdIFormatterInterface
 
   void (*set_string_value) (GstdIFormatter * self, const gchar * value);
 
+  void (*set_null_value) (GstdIFormatter * self);
+
   void (*set_value) (GstdIFormatter * self, const GValue * value);
 
   void (*generate) (GstdIFormatter * self, gchar ** outstring);
@@ -83,10 +71,11 @@ void gstd_iformatter_set_member_name (GstdIFormatter * self,
 void gstd_iformatter_set_string_value (GstdIFormatter * self,
     const gchar * value);
 
+void gstd_iformatter_set_null_value (GstdIFormatter * self);
+
 void gstd_iformatter_set_value (GstdIFormatter * self, const GValue * value);
 
 void gstd_iformatter_generate (GstdIFormatter * self, gchar ** outstring);
 
 G_END_DECLS
-
 #endif /* __GSTD_IFORMATTER_H__ */

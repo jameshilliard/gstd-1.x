@@ -30,13 +30,18 @@
 # OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from setuptools import setup, find_packages
+import sys
+
+# Get gstd version from argument
+number_of_arguments = len(sys.argv)
+version_parameter = sys.argv[-1]
+version = version_parameter.split("=")[1]
+sys.argv = sys.argv[0:number_of_arguments-1]
 
 setup(
     name='pygstc',
-    version='0.4.0',
+    version=version,
     description='Python GStreamer Daemon Client',
-    long_description='Python GStreamer Daemon Client',
-    long_description_content_type='text/markdown',
     url='https://github.com/RidgeRun/gstd-1.x',
     author='RidgeRun',
     author_email='support@ridgerun.com',
@@ -44,10 +49,14 @@ setup(
                            'tests']),
     scripts=[],
     classifiers=['Development Status :: 3 - Alpha',
-                 'Programming Language :: Python :: 3.5',
-                 'Programming Language :: Python :: 3.6',
-                 'Programming Language :: Python :: 3.7'],
-    python_requires='>=3.5',
+                 'Programming Language :: Python :: 3.7',
+                 'Programming Language :: Python :: 3.8',
+                 'Programming Language :: Python :: 3.9',
+                 'Programming Language :: Python :: 3.10',
+                 'Programming Language :: Python :: 3.11',
+                 'Programming Language :: Python :: 3.12',
+                 'Programming Language :: Python :: 3.13'],
+    python_requires='>=3.7',
     install_requires=[],
     command_options={},
     extras_require={},

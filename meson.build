@@ -1,5 +1,5 @@
 project('gstd', 'c',
-  version : '0.14.0',
+  version : '0.15.2',
   meson_version : '>= 0.50',
   default_options : [
     'c_std=c11',
@@ -116,15 +116,9 @@ lib_gstc_dir = []
 
 # Define compiler args and include directories
 runstatedir = get_option('with-gstd-runstatedir') + '/'
-if runstatedir == '${prefix}/var/run/gstd/'
-   runstatedir = prefix + '/var/run/gstd/'
-endif
 gstd_run_state_dir = '-DGSTD_RUN_STATE_DIR="@0@"'.format(runstatedir)
 
 logstatedir = get_option('with-gstd-logstatedir') + '/'
-if logstatedir == '${prefix}/var/log/gstd/'
-   logstatedir = prefix + '/var/log/gstd/'
-endif
 gstd_log_state_dir = '-DGSTD_LOG_STATE_DIR="@0@"'.format(logstatedir)
 gst_c_args = ['-DHAVE_CONFIG_H',gstd_log_state_dir,gstd_run_state_dir]
 gst_d_args = ['-DHAVE_CONFIG_H',gstd_log_state_dir,gstd_run_state_dir]

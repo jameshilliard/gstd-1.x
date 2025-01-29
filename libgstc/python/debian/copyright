@@ -1,6 +1,0 @@
-Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: pygstc
-Upstream-Contact: RidgeRun Engineering <support@ridgerun.com>
-
-Copyright: 2022 RidgeRun, LLC (http://www.ridgerun.com)
-License: 2-Clause BSD

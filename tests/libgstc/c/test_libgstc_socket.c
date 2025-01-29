@@ -2,32 +2,20 @@
  * This file is part of GStreamer Daemon
  * Copyright 2015-2022 Ridgerun, LLC (http://www.ridgerun.com)
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
  *
- * 1. Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
  *
- * 2. Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 #include <arpa/inet.h>
 #include <gst/check/gstcheck.h>
@@ -179,7 +167,7 @@ GST_START_TEST (test_socket_success_keep_open)
   const gint keep_open = TRUE;
   const gchar *request = "ping";
   const gchar *expected = "pong";
-  gchar *response;
+  gchar *response = NULL;
 
   ret = gstc_socket_new (address, port, keep_open, &socket);
   assert_equals_int (GSTC_OK, ret);
@@ -207,7 +195,7 @@ GST_START_TEST (test_socket_timeout_sucess)
   const gint keep_open = TRUE;
   const gchar *request = "ping";
   const gchar *expected = "pong";
-  gchar *response;
+  gchar *response = NULL;
   socket_delay = 100;
 
   ret = gstc_socket_new (address, port, keep_open, &socket);
@@ -237,7 +225,7 @@ GST_START_TEST (test_socket_timeout_reached)
   const gint keep_open = TRUE;
   const gchar *request = "ping";
   const gchar *expected = "pong";
-  gchar *response;
+  gchar *response = NULL;
   socket_delay = 100;
 
   ret = gstc_socket_new (address, port, keep_open, &socket);
@@ -265,7 +253,7 @@ GST_START_TEST (test_socket_success_keep_closed)
   const gint keep_open = FALSE;
   const gchar *request = "ping";
   const gchar *expected = "pong";
-  gchar *response;
+  gchar *response = NULL;
   int socket_errno;
 
   ret = gstc_socket_new (address, port, keep_open, &gstc_socket);
@@ -310,7 +298,7 @@ GST_START_TEST (test_socket_persistent)
   const gint keep_open = TRUE;
   const gchar *request = "ping";
   const gchar *expected = "pong";
-  gchar *response;
+  gchar *response = NULL;
 
   ret = gstc_socket_new (address, port, keep_open, &socket);
   assert_equals_int (GSTC_OK, ret);
@@ -400,7 +388,7 @@ GST_START_TEST (test_socket_null_socket)
   GstcStatus ret;
   const gchar *request = "ping";
   const int timeout = -1;
-  gchar *response;
+  gchar *response = NULL;
 
   ret = gstc_socket_send (NULL, request, &response, timeout);
   assert_equals_int (GSTC_NULL_ARGUMENT, ret);
@@ -417,7 +405,7 @@ GST_START_TEST (test_socket_null_request)
   const int timeout = -1;
   const gint keep_open = TRUE;
   const gchar *request = NULL;
-  gchar *response;
+  gchar *response = NULL;
 
   ret = gstc_socket_new (address, port, keep_open, &socket);
   assert_equals_int (GSTC_OK, ret);
@@ -461,8 +449,8 @@ GST_START_TEST (test_socket_long_response)
   const gint keep_open = FALSE;
   const gchar *request = "ping";
   gchar *expected;
-  gint size = 1024*1024;
-  gchar *response;
+  gint size = 1024 * 1024;
+  gchar *response = NULL;
   int i = 0;
 
   ret = gstc_socket_new (address, port, keep_open, &gstc_socket);
@@ -471,10 +459,10 @@ GST_START_TEST (test_socket_long_response)
 
   expected = g_malloc (size);
   for (i = 0; i < size; ++i) {
-    expected[i] = 'a' + (i%10);
+    expected[i] = 'a' + (i % 10);
   }
   expected[size - 1] = '\0';
-  
+
   _mock_expected = expected;
   ret = gstc_socket_send (gstc_socket, request, &response, wait_time);
 
